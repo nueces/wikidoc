@@ -14,7 +14,7 @@ One of the special comments is the WIKIDOC CONFIG comment, containing a list of 
 
 ## wikidoc HEAD and FOOT
 
-The joined wiki files are put between customizable the HTML HEAD and HTML FOOT segments. The HTML HEAD may contain the ###_WIKIDOC_GENDATE_### placeholder, which will be replaced by the current date.
+The joined wiki files are put between the customizable HTML HEAD and HTML FOOT segments. The HTML HEAD may contain the ###_WIKIDOC_GENDATE_### placeholder, which will be replaced by the current date.
 
 
 ## usage
@@ -24,7 +24,7 @@ After cloning/pulling the latest version of the github wiki repository into <fol
 ./wikidoc.py <folder>
 ```
 
-## todo:
+## todo
  - better image extraction
  - allow markdown
 
