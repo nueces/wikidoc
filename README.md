@@ -59,6 +59,6 @@ WIKIDOC HEAD -->
 </body></html>
 WIKIDOC FOOT -->
 
-Only this text will be displayed on the HOME page. In this example, its H1-header in the generated PDF is "Preface", as defined in the WIKIDOC HEAD.
+Only this text will be displayed on the wiki home page. In this example, its header in the generated PDF is "Preface", as defined in the WIKIDOC HEAD.
 
 ```
