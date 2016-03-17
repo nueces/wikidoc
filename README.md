@@ -17,18 +17,18 @@ One of the special comments is the WIKIDOC CONFIG comment, containing a list of 
 The joined wiki files are put between customizable the HTML HEAD and HTML FOOT segments. The HTML HEAD may contain the ###_WIKIDOC_GENDATE_### placeholder, which will be replaced by the current date.
 
 
-## Usage
+## usage
 
-After cloning/pulling the lates version of the github wiki repository into <folder>, run:
+After cloning/pulling the latest version of the github wiki repository into <folder>, run:
 ```
 ./wikidoc.py <folder>
 ```
 
-## ToDo:
+## todo:
  - better image extraction
  - allow markdown
 
-## Example Home.md
+## example Home.md
 
 ```
 <!-- WIKIDOC CONFIG
