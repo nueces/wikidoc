@@ -2,7 +2,7 @@
 
 This tool allows to create a nice looking PDF file from a github wiki, which can be used as offline/printable documentation.
 
-For it to work, all wiki files must be created as github markdown files and must contain only pure HTML (which is supported by the github wiki markdown), but no markdown. Furthermore the wiki home page (Home.md) must be present and must contain some special comments to configure and customize wikidoc (see example below).
+For it to work, all wiki files must be created as github markdown files and must contain only pure HTML (which is supported by the github wiki markdown), but no markdown. Furthermore the wiki home page `Home.md` must be present and must contain some special comments to configure and customize wikidoc (see example below).
 
 The script builds one large HTML file from the different wiki files and pipes that into [wkhtmltox](http://www.wkhtmltopdf.org/) to create the PDF. It uses the same file order as the github wiki to join the different wiki files and adds a header based on the filenames in the same way as the github wiki is doing it. Except for the home page: The custom WIKIDOC HEAD can be used to add a header for the home page.
 
@@ -12,11 +12,11 @@ The offline documentation for the [jTDC repository](https://github.com/jobisoft/
 
 ## wikidoc configuration
 
-One of the special comments required in Home.md is the WIKIDOC CONFIG comment, containing a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
+One of the special comments required in `Home.md` is the WIKIDOC CONFIG comment, containing a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
 
 ## wikidoc HEAD and FOOT
 
-The joined wiki files are put between the customizable HTML HEAD and HTML FOOT segments, which must be stored in Home.md as special comments. The HTML HEAD may contain the ###_WIKIDOC_GENDATE_### placeholder, which will be replaced by the current date.
+The joined wiki files are put between the customizable HTML HEAD and HTML FOOT segments, which must be stored in `Home.md` as special comments. The HTML HEAD may contain the ###_WIKIDOC_GENDATE_### placeholder, which will be replaced by the current date.
 
 
 ## usage
@@ -52,7 +52,8 @@ WIKIDOC CONFIG  -->
 </STYLE>
 </head>
 <body>
-<div class='covertitle'>Example Documentation<br><span class='generated'>generated from github wiki: ###_WIKIDOC_GENDATE_###</span></div>
+<div class='covertitle'>Example Documentation<br>
+<span class='generated'>generated from github wiki: ###_WIKIDOC_GENDATE_###</span></div>
 <h1>Preface</h1>
 WIKIDOC HEAD -->
 
@@ -60,6 +61,7 @@ WIKIDOC HEAD -->
 </body></html>
 WIKIDOC FOOT -->
 
-Only this text will be displayed on the wiki home page. In this example, its header in the generated PDF is "Preface", as defined in the WIKIDOC HEAD.
+Only this text will be displayed on the wiki home page. In this example, 
+its header in the generated PDF is "Preface", as defined in the WIKIDOC HEAD.
 
 ```
