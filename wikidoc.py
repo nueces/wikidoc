@@ -2,7 +2,7 @@
 
 ##############################################################################
 #                                                                            #
-# Copyright 2015, John Bieling                                               #
+# Copyright 2016, John Bieling                                               #
 #                                                                            #
 # This program is free software; you can redistribute it and/or modify       #
 # it under the terms of the GNU General Public License as published by       #
