@@ -2,7 +2,7 @@
 
 This tool allows to create a nice looking PDF file from a github wiki, which can be used as offline/printable documentation.
 
-For it to work, all wiki files must be created as github markdown files and must contain only pure HTML (which is supported by the github wiki), but no markdown. Furthermore the wiki home page (Home.md) must be present and must contain some special comments to configure and customize wikidoc (see example below).
+For it to work, all wiki files must be created as github markdown files and must contain only pure HTML (which is supported by the github wiki markdown), but no markdown. Furthermore the wiki home page (Home.md) must be present and must contain some special comments to configure and customize wikidoc (see example below).
 
 The script builds one large HTML file from the different wiki files and pipes that into [wkhtmltox](http://www.wkhtmltopdf.org/) to create the PDF. It uses the same file order as the github wiki to join the different wiki files and adds a header based on the filenames in the same way as the github wiki is doing it. Except for the home page: The custom WIKIDOC HEAD can be used to add a header for the home page.
 
