@@ -21,7 +21,7 @@ The joined wiki files are put between the customizable HTML HEAD and HTML FOOT s
 
 After cloning/pulling the latest version of the github wiki repository into `<folder>`, run:
 ```
-./wikidoc.py <folder>
+./wikidoc.py <path-to-wkhtmltopdf> <folder>
 ```
 
 ## todo
@@ -32,12 +32,12 @@ After cloning/pulling the latest version of the github wiki repository into `<fo
 
 ```
 <!-- WIKIDOC CONFIG
-filename: documentation.pdf
-page-size: A4
-margin-top: 2cm
-margin-left: 2cm
-margin-bottom: 2cm
-margin-right: 2cm
+--filename documentation.pdf
+--page-size A4
+--margin-top 2cm
+--margin-left 2cm
+--margin-bottom 2cm
+--margin-right 2cm
 WIKIDOC CONFIG  -->
 
 <!-- WIKIDOC HEAD
