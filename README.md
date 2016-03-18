@@ -1,6 +1,6 @@
 # wikidoc
 
-This tool allows to create a nice looking PDF file from a github wiki, which can be used as offline/printable documentation.
+This python script allows to create a nice looking PDF file from a github wiki, which can be used as offline/printable documentation.
 
 For it to work, all wiki files must be created as github markdown files and must contain only pure HTML (which is supported by the github wiki markdown), but no markdown. Furthermore the wiki home page `Home.md` must be present and must contain some special comments to configure and customize wikidoc (see example below).
 
