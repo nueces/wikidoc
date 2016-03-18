@@ -45,8 +45,11 @@ WIKIDOC CONFIG  -->
 <head>
 <STYLE type='text/css'>
     html { font-family: Verdana,Geneva,sans-serif; font-size: 10pt; }
-    h1  {page-break-before: always; }
-    img.exampleclass { width: 80%; page-break-after: always; }
+    table { border-collapse: collapse;  margin: 1em 0 1em 0; width: 90%; margin-left: auto; margin-right: auto; }
+    table, th, td {	border: 1px solid #ccc; }
+    table tr:first-child { background-color: #eee; }
+    table td { font-family: Verdana,Geneva,sans-serif; font-size: 8pt; vertical-align: top; padding: 5px; }
+    .breakbefore, h1 { page-break-before: always; }
     .covertitle { padding-top: 40%; text-align: right; font-weight:bold; font-size: 30pt; }
     .generated { font-weight:normal; font-size: 6pt; }
 </STYLE>
