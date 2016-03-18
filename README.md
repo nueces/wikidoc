@@ -21,9 +21,9 @@ The joined wiki files are put between the customizable HTML HEAD and HTML FOOT s
 
 ## usage
 
-After cloning/pulling the latest version of the github wiki repository into `<folder>`, run:
+After cloning/pulling the latest version of the github wiki repository, run:
 ```
-./wikidoc.py <path-to-wkhtmltopdf> <folder>
+./wikidoc.py <path-to-wkhtmltopdf> <path-to-github-wiki-repository>
 ```
 ## todo
  - allow markdown
