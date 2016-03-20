@@ -37,6 +37,12 @@ def getTitleFromFilename(file):
 	return base.replace("-"," ")
 
 
+def substitute(section, filename):
+	section = section.replace("###_WIKIDOC_GENDATE_###", time.strftime("%d.%m.%Y"))
+	section = section.replace("###_WIKIDOC_TITLE_###", getTitleFromFilename(filename))
+	return section
+
+
 def parseFile(path,file):
 	html = ""
 
@@ -46,10 +52,7 @@ def parseFile(path,file):
 		html = html.replace("<!-- WIKIDOC PDFONLY","")
 		html = html.replace("WIKIDOC PDFONLY -->","")
 
-		# replace all allowed placeholders
-		html = html.replace("###_WIKIDOC_TITLE_###",getTitleFromFilename(file))
-
-	return html
+	return substitute(html,file)
 
 
 def extractStartStop(startString, endString , filestr):
@@ -60,7 +63,7 @@ def extractStartStop(startString, endString , filestr):
 
 	return filestr[start+len(startString):end].strip('\n\r ')
 
-
+	
 def readGlobalWikidocComments(file):
 	wikidocConfig = {}
 	wkhtmltopdfConfig = []
@@ -68,11 +71,14 @@ def readGlobalWikidocComments(file):
 	try:
 		with open (file, "r") as myfile:
 			filecontent = myfile.read()
-			wikidocConfig["HEAD"] = extractStartStop("<!-- WIKIDOC GLOBALHEAD", "WIKIDOC GLOBALHEAD -->" , filecontent)
-			wikidocConfig["FOOT"] = extractStartStop("<!-- WIKIDOC GLOBALFOOT", "WIKIDOC GLOBALFOOT -->" , filecontent)
-
+			wikidocConfig["HEAD"] = extractStartStop("<!-- WIKIDOC HTMLHEAD", "WIKIDOC HTMLHEAD -->" , filecontent)
+			wikidocConfig["FOOT"] = extractStartStop("<!-- WIKIDOC HTMLFOOT", "WIKIDOC HTMLFOOT -->" , filecontent)
+			if (not wikidocConfig["HEAD"]  or  not wikidocConfig["FOOT"]):
+					print ("Could not find HTMLHEAD and/or HTMLFOOT comment in home.md. Aborting.\n")
+					exit()
+					
 			wikidocConfig["COVER"] = extractStartStop("<!-- WIKIDOC COVER", "WIKIDOC COVER -->" , filecontent)
-			wikidocConfig["COVER"] = wikidocConfig["COVER"].replace("###_WIKIDOC_GENDATE_###",time.strftime("%d.%m.%Y"))
+			wikidocConfig["COVER"] = substitute(wikidocConfig["COVER"],"Cover.md")
 
 			wikidocConfig["TOCXSL"] = extractStartStop("<!-- WIKIDOC TOCXSL", "WIKIDOC TOCXSL -->" , filecontent)
 

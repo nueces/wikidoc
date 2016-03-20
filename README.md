@@ -4,7 +4,7 @@ This python script allows to create nice looking PDF files from a github wiki, w
 
 ## Concept ##
 
-All the information needed to configure wkhtmltopdf are stored in the wiki home file as html comments, so no additinal files/options are needed to generate the PDF. If the wiki home file is setup as needed, clone the wiki and run this script as follows, to generate the PDF:
+All the information needed to configure wkhtmltopdf are stored in the wiki home file as html comments, so no additional files/options are needed to generate the PDF. If the wiki home file is setup as needed, clone the wiki and run this script as follows, to generate the PDF:
 
 ```
 git clone https://github.com/<user>/<repository>.wiki.git
@@ -148,7 +148,7 @@ choose a different name for the pdf and/or a different header-level (h2, h3 ...)
 <p>The WIKIDOC PDFONLY comment can be used in all wiki files, not just the wiki home file.</p>
 ```
 
-## WIKIDOC comments for home.md only ##
+## Comments usable in wiki home ##
 
 ### WIKIDOC CONFIG ###
 
@@ -166,12 +166,12 @@ The WIKIDOC COVER is an optional comment. If present, it will create a cover pag
 
 The WIKIDOC TOCXSL is an optional comment. If present, a table of contents will be added to the PDF, after the cover and before the actual document. The TOC is completely defined by the provided XSL. Any provided wkhtmltopdf parameter for the toc section will be ignored.
 
-## WIKIDOC comments for all wiki files ##
+## Comments usable in all wiki files ##
 
 ### WIKIDOC PDFONLY ###
 
 The content of this comment will be redered in the PDF. The original purpose was to provide a flexibel solution to add a header to each wiki file (see botttom of example `home.md`). However, it can be used to provide any html content for the PDF, which might not be supported by the github wiki markdown. For example complex tables: A simple table could be designed for the wiki, which has a CSS class which hides it in the PDF and the PDFONLY contains a more complex table for the PDF.
 
-### WIKIDOC PDFONLYANDIMAGE ###
+### WIKIDOC PDFONLY_GENIMAGE ###
 
-This comment forces wkhtmltopdf to actually create an image from the redered PDFONLY section, which can than be included in the wiki, to overcome its html limitations. 
+This comment forces wkhtmltopdf to actually create an image from the rendered PDFONLY section, which can than be included in the wiki, to overcome its html limitations.
