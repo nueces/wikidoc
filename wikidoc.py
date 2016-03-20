@@ -31,32 +31,50 @@ def getFilesInDirectory(dir, FailOnError = True):
 		print "Folder <"+ dir +"> does not exist. Aborting."
 		sys.exit(0)
 
+
 def getTitleFromFilename(file):
 	base = os.path.splitext(file)[0]
 	return base.replace("-"," ")
 
-def includeFile(path,file):
-	html = list()
-	if not file == "Home.md":
-		html.append("<h1>" + getTitleFromFilename(file) + "</h1>")
+
+def parseFile(path,file):
+	html = ""
+
 	with open (path + file, "r") as myfile:
-    		html.append(myfile.read())
-	
-	return "\n".join(html)
+		html = myfile.read()
+		# remove wikidoc only comments (start and stop, keep the content!)
+		html = html.replace("<!-- WIKIDOC PDFONLY","")
+		html = html.replace("WIKIDOC PDFONLY -->","")
+
+		# replace all allowed placeholders
+		html = html.replace("###_WIKIDOC_TITLE_###",getTitleFromFilename(file))
+
+	return html
+
 
 def extractStartStop(startString, endString , filestr):
-	return filestr[filestr.find(startString)+len(startString):filestr.find(endString)].strip('\n\r ')
+	start = filestr.find(startString)
+	end = filestr.find(endString)
+	if start == -1 or end == -1 or start > end:
+		return ""
+
+	return filestr[start+len(startString):end].strip('\n\r ')
 
 
-def readComments(file):
+def readGlobalWikidocComments(file):
 	wikidocConfig = {}
 	wkhtmltopdfConfig = []
 
 	try:
 		with open (file, "r") as myfile:
-    			filecontent = myfile.read()
-			wikidocConfig["HEAD"] = extractStartStop("<!-- WIKIDOC HEAD", "WIKIDOC HEAD -->" , filecontent)
-			wikidocConfig["FOOT"] = extractStartStop("<!-- WIKIDOC FOOT", "WIKIDOC FOOT -->" , filecontent)
+			filecontent = myfile.read()
+			wikidocConfig["HEAD"] = extractStartStop("<!-- WIKIDOC GLOBALHEAD", "WIKIDOC GLOBALHEAD -->" , filecontent)
+			wikidocConfig["FOOT"] = extractStartStop("<!-- WIKIDOC GLOBALFOOT", "WIKIDOC GLOBALFOOT -->" , filecontent)
+
+			wikidocConfig["COVER"] = extractStartStop("<!-- WIKIDOC COVER", "WIKIDOC COVER -->" , filecontent)
+			wikidocConfig["COVER"] = wikidocConfig["COVER"].replace("###_WIKIDOC_GENDATE_###",time.strftime("%d.%m.%Y"))
+
+			wikidocConfig["TOCXSL"] = extractStartStop("<!-- WIKIDOC TOCXSL", "WIKIDOC TOCXSL -->" , filecontent)
 
 			parameters = extractStartStop("<!-- WIKIDOC CONFIG", "WIKIDOC CONFIG -->" , filecontent).splitlines()
 			for line in parameters:
@@ -94,39 +112,73 @@ pathWiki = sys.argv[2]
 if not pathWiki.endswith("/"):
 	pathWiki = pathWiki + "/"
 
- 
 
 # Home.md must be present and it must contain special comments with additional
 # informations
-(wikidocConfig, wkhtmltopdfConfig) = readComments(pathWiki + "Home.md")
+(wikidocConfig, wkhtmltopdfConfig) = readGlobalWikidocComments(pathWiki + "Home.md")
 
-# Build html
+
+# Build html, start with global head
 html = list()
-html.append(wikidocConfig["HEAD"].replace("###_WIKIDOC_GENDATE_###",time.strftime("%d.%m.%Y")))
+html.append(wikidocConfig["HEAD"])
+
 
 # Append Home.md
-html.append(includeFile(pathWiki, "Home.md"))
+html.append(parseFile(pathWiki, "Home.md"))
+
 
 # get all markdown files
 files = sorted(getFilesInDirectory(pathWiki), key=lambda s: s.lower())
 
+
 # Append all other files, except Home.md
 for file in files:
 	if file.endswith(".md") and not file == "Home.md":
-		html.append(includeFile(pathWiki, file))
-	
+		html.append(parseFile(pathWiki, file))
+
+
+# Append global foot
 html.append(wikidocConfig["FOOT"])
 
 
+tempfiles = list()
 
 # Write html into temp file
+tempfiles.append(wikidocConfig["filename"] + ".html")
 with open(wikidocConfig["filename"] + ".html", "w") as html_file:
     html_file.write("\n".join(html))
 
+# Write cover into temp file - if present
+if (wikidocConfig["COVER"]):
+	tempfiles.append(wikidocConfig["filename"] + ".cover.html")
+	with open(wikidocConfig["filename"] + ".cover.html", "w") as cover_file:
+    		cover_file.write(wikidocConfig["HEAD"] + "\n" + wikidocConfig["COVER"] + "\n" + wikidocConfig["FOOT"])
 
-# Convert HTML 2 PDF
+# Write tocxsl into temp file - if present
+if (wikidocConfig["TOCXSL"]):
+	tempfiles.append(wikidocConfig["filename"] + ".toc.xsl")
+	with open(wikidocConfig["filename"] + ".toc.xsl", "w") as toc_file:
+    		toc_file.write(wikidocConfig["TOCXSL"])
+
+
+
+# Build cmd for wkhtmltopdf
+cmd = pathWkhtmltopdf + " " + " ".join(wkhtmltopdfConfig) + " "
+if (wikidocConfig["COVER"]):
+	cmd = cmd + "cover " + wikidocConfig["filename"] + ".cover.html "
+if (wikidocConfig["TOCXSL"]):
+	cmd = cmd + "toc --xsl-style-sheet " + wikidocConfig["filename"] + ".toc.xsl "
+cmd = cmd + wikidocConfig["filename"] + ".html" +  " " + wikidocConfig["filename"]
+
+
+# Convert HTML to PDF
 try:
-	subprocess.call(pathWkhtmltopdf + " " + " ".join(wkhtmltopdfConfig) + " " + wikidocConfig["filename"] + ".html" +  " " + wikidocConfig["filename"], shell=True)
+	subprocess.call(cmd, shell=True)
 except OSError:
 	print "Something went wrong calling " + pathWkhtmltopdf + " on " + wikidocConfig["filename"] + ".html"
-	exit()
+
+
+# Delete all created temp files
+for tempfile in tempfiles:
+	if (os.path.isfile(tempfile)): 
+		os.unlink(tempfile)
