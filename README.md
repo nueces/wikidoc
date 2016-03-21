@@ -172,6 +172,4 @@ The WIKIDOC TOCXSL is an optional comment. If present, a table of contents will 
 
 The content of this comment will be redered in the PDF. The original purpose was to provide a flexibel solution to add a header to each wiki file (see botttom of example `home.md`). However, it can be used to provide any html content for the PDF, which might not be supported by the github wiki markdown. For example complex tables: A simple table could be designed for the wiki, which has a CSS class which hides it in the PDF and the PDFONLY contains a more complex table for the PDF.
 
-### WIKIDOC PDFONLY_GENIMAGE ###
-
-This comment forces wkhtmltopdf to actually create an image from the rendered PDFONLY section, which can than be included in the wiki, to overcome its html limitations.
+If the PDFONLY section is given a name as in the following example, the section will also be generated as a PNG, which can be used in the wiki, to overcome limitations of the github markdown. The PNG will get its name from the section name and ist stored inside the wiki repository in a folder called `generated-images`. That folder must exist.

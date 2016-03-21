@@ -48,9 +48,45 @@ def parseFile(path,file):
 
 	with open (path + file, "r") as myfile:
 		html = myfile.read()
-		# remove wikidoc only comments (start and stop, keep the content!)
-		html = html.replace("<!-- WIKIDOC PDFONLY","")
-		html = html.replace("WIKIDOC PDFONLY -->","")
+			
+		# define search strings
+		startstring = '<!-- WIKIDOC PDFONLY'
+		endstring = 'WIKIDOC PDFONLY -->'
+		
+		# reverse loop through all PDFONLY sections 
+		start = html.rfind(startstring)
+		end = html.rfind(endstring)+len(endstring)
+		while not start == -1 and not end == -1 and start < end:
+			# get arary of lines of section - first and last line is to be dropped
+			sectionlines = html[start:end].splitlines()
+			
+			# get name of section (if any) from first line
+			name = (sectionlines[0].replace(startstring,"")).strip()
+			
+			# get section without enclosing html comment tags
+			section = substitute("\n".join(sectionlines[1:-1]),file).strip()
+			
+			# generate images from PDFONLY segments
+			if (generateImages and name):
+				with open("wikidoc_image.html", "w") as image_file:
+					image_file.write(wikidocConfig["HEAD"] + "\n" + section + "\n" + wikidocConfig["FOOT"])
+				
+				# Convert HTML to IMAGE
+				print " -> Converting PDFONLY section <" + name + "> to PNG."
+				cmd = pathWkhtmltoimage + " --width 700 wikidoc_image.html " + pathWiki + "generated-images/" + name + ".PNG"
+				try:
+					subprocess.call(cmd, shell=True)
+				except OSError:
+					print "Something went wrong converting PDFONLY section to PNG."
+
+				# Delete temp file
+				os.unlink("wikidoc_image.html")
+		
+			# replace section by modified section
+			html = html[:start] + section + html[end:]
+			start = html.rfind(startstring)
+			end = html.rfind(endstring)+len(endstring)
+		
 
 	return substitute(html,file)
 
@@ -119,6 +155,21 @@ if not pathWiki.endswith("/"):
 	pathWiki = pathWiki + "/"
 
 
+generateImages = True
+# Check if wkhtmltoimage is present
+pathWkhtmltoimage = os.path.dirname(pathWkhtmltopdf) + "/wkhtmltoimage"
+if (not os.path.isfile(pathWkhtmltoimage)):
+	print "PDFONLY segements will not be saved as images, because 'wkhtmltoimage'"
+	print "is not found next to wkhtmltopdf.\n"
+	generateImages = False	
+
+# Check, if generated-images folder exists in pathWiki
+if (generateImages and not os.path.isdir(pathWiki + "generated-images")):
+	print "PDFONLY segements will not be saved as images, because 'generated-images'"
+	print "folder not found in wiki repository.\n"
+	generateImages = False
+
+11
 # Home.md must be present and it must contain special comments with additional
 # informations
 (wikidocConfig, wkhtmltopdfConfig) = readGlobalWikidocComments(pathWiki + "Home.md")
@@ -147,34 +198,34 @@ for file in files:
 html.append(wikidocConfig["FOOT"])
 
 
-tempfiles = list()
+tempfiles = dict()
 
 # Write html into temp file
-tempfiles.append(wikidocConfig["filename"] + ".html")
-with open(wikidocConfig["filename"] + ".html", "w") as html_file:
+tempfiles["main"] = "wikidoc.html"
+with open(tempfiles["main"], "w") as html_file:
     html_file.write("\n".join(html))
 
 # Write cover into temp file - if present
 if (wikidocConfig["COVER"]):
-	tempfiles.append(wikidocConfig["filename"] + ".cover.html")
-	with open(wikidocConfig["filename"] + ".cover.html", "w") as cover_file:
+	tempfiles["cover"] = "wikidoc_cover.html"
+	with open(tempfiles["cover"], "w") as cover_file:
     		cover_file.write(wikidocConfig["HEAD"] + "\n" + wikidocConfig["COVER"] + "\n" + wikidocConfig["FOOT"])
 
 # Write tocxsl into temp file - if present
 if (wikidocConfig["TOCXSL"]):
-	tempfiles.append(wikidocConfig["filename"] + ".toc.xsl")
-	with open(wikidocConfig["filename"] + ".toc.xsl", "w") as toc_file:
+	tempfiles["toc"] = "wikidoc_toc.xsl"
+	with open(tempfiles["toc"], "w") as toc_file:
     		toc_file.write(wikidocConfig["TOCXSL"])
 
 
 
 # Build cmd for wkhtmltopdf
 cmd = pathWkhtmltopdf + " " + " ".join(wkhtmltopdfConfig) + " "
-if (wikidocConfig["COVER"]):
-	cmd = cmd + "cover " + wikidocConfig["filename"] + ".cover.html "
-if (wikidocConfig["TOCXSL"]):
-	cmd = cmd + "toc --xsl-style-sheet " + wikidocConfig["filename"] + ".toc.xsl "
-cmd = cmd + wikidocConfig["filename"] + ".html" +  " " + wikidocConfig["filename"]
+if (tempfiles["cover"]):
+	cmd = cmd + "cover " + tempfiles["cover"] + " "
+if (tempfiles["toc"]):
+	cmd = cmd + "toc --xsl-style-sheet " + tempfiles["toc"] + " "
+cmd = cmd +tempfiles["main"] + " " + pathWiki + wikidocConfig["filename"]
 
 
 # Convert HTML to PDF
@@ -185,6 +236,6 @@ except OSError:
 
 
 # Delete all created temp files
-for tempfile in tempfiles:
+for tempfile in tempfiles.itervalues():
 	if (os.path.isfile(tempfile)): 
 		os.unlink(tempfile)
