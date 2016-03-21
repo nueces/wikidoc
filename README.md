@@ -156,7 +156,7 @@ One of the required wikidoc comments in `home.md` is WIKIDOC CONFIG, containing 
 
 ### WIKIDOC HTMLHEAD and WIKIDOC HTMLFOOT ###
 
-The wiki files are (converted to html* and) joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two requiered  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
+The wiki files are (converted to html* and) joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two required  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
 
 ### WIKIDOC COVER ###
 
