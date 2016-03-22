@@ -160,7 +160,7 @@ The WIKIDOC PDFONLY comment can be used in all wiki files, not just the wiki hom
 
 * WIKIDOC CONFIG: One of the required wikidoc comments in `home.md` is WIKIDOC CONFIG, containing a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
 
-* WIKIDOC HTMLHEAD and WIKIDOC HTMLFOOT: The wiki files are (converted to html* and) joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two required  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
+* WIKIDOC HTMLHEAD and WIKIDOC HTMLFOOT: The wiki markdown files are converted to html with pandoc, joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two required  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
 
 * WIKIDOC COVER: This is an optional comment. If present, it will create a cover page which is special to wkhtmltopdf as it will never have any header or footer. The COVER comment may only contain html (no markdown allowed!) and supports all available placeholder substitutions (for example ###_WIKIDOC_GENDATE_###).
 
