@@ -46,47 +46,63 @@ def substitute(section, filename):
 def parseFile(path,file):
 	html = ""
 
-	with open (path + file, "r") as myfile:
-		html = myfile.read()
+	# Try to convert the source via pandoc to html, otherwise simply
+	# open it and treat as pure html
+	try:
+		html = subprocess.check_output("pandoc -r markdown_github " + path + file, shell=True)
+	except subprocess.CalledProcessError:
+		print ("Could not convert " + file + " with pandoc from github markdown to html, trying to open it as plain html.")
+		with open (path + file, "r") as myfile:
+			html = myfile.read()
 			
-		# define search strings
-		startstring = '<!-- WIKIDOC PDFONLY'
-		endstring = 'WIKIDOC PDFONLY -->'
+	if (not html):
+		print ("Could not read " + file + ".")
+		return ""
 		
-		# reverse loop through all PDFONLY sections 
-		start = html.rfind(startstring)
-		end = html.rfind(endstring)+len(endstring)
-		while not start == -1 and not end == -1 and start < end:
-			# get arary of lines of section - first and last line is to be dropped
-			sectionlines = html[start:end].splitlines()
+		
+	# define search strings
+	startstring = '<!-- WIKIDOC PDFONLY'
+	endstring = 'WIKIDOC PDFONLY -->'
+	
+	# reverse loop through all PDFONLY sections 
+	start = html.rfind(startstring)
+	end = html.rfind(endstring)+len(endstring)
+	while not start == -1 and not end == -1 and start < end:
+		# get arary of lines of section - first and last line is to be dropped
+		sectionlines = html[start:end].splitlines()
+		
+		# get name of section (if any) from first line
+		name = (sectionlines[0].replace(startstring,"")).strip()
+		
+		# get section without enclosing html comment tags
+		section = substitute("\n".join(sectionlines[1:-1]),file).strip()
+		
+		# generate images from PDFONLY segments
+		if (generateImages and name):
+			with open("wikidoc_image.html", "w") as image_file:
+				image_file.write(wikidocConfig["HEAD"] + "\n" + section + "\n" + wikidocConfig["FOOT"])
 			
-			# get name of section (if any) from first line
-			name = (sectionlines[0].replace(startstring,"")).strip()
-			
-			# get section without enclosing html comment tags
-			section = substitute("\n".join(sectionlines[1:-1]),file).strip()
-			
-			# generate images from PDFONLY segments
-			if (generateImages and name):
-				with open("wikidoc_image.html", "w") as image_file:
-					image_file.write(wikidocConfig["HEAD"] + "\n" + section + "\n" + wikidocConfig["FOOT"])
-				
-				# Convert HTML to IMAGE
-				print " -> Converting PDFONLY section <" + name + "> to PNG."
-				cmd = pathWkhtmltoimage + " --width 700 wikidoc_image.html " + pathWiki + "generated-images/" + name + ".PNG"
-				try:
-					subprocess.call(cmd, shell=True)
-				except OSError:
-					print "Something went wrong converting PDFONLY section to PNG."
+			# Convert HTML to IMAGE
+			print " -> Converting PDFONLY section <" + name + "> to PNG."
+			cmd = pathWkhtmltoimage + " --width 700 wikidoc_image.html " + pathWiki + "generated-images/" + name + ".PNG"
+			try:
+				subprocess.call(cmd, shell=True)
+			except OSError:
+				print "Something went wrong converting PDFONLY section to PNG."
 
-				# Delete temp file
-				os.unlink("wikidoc_image.html")
-		
-			# replace section by modified section
-			html = html[:start] + section + html[end:]
-			start = html.rfind(startstring)
-			end = html.rfind(endstring)+len(endstring)
-		
+			cmd ="convert -trim " + pathWiki + "generated-images/" + name + ".PNG " + pathWiki + "generated-images/" + name + ".PNG"
+			try:
+				subprocess.call(cmd, shell=True)
+			except OSError:
+				print "Something went wrong triming PDF: convert/imagemagic not installed?"
+
+			# Delete temp file
+			os.unlink("wikidoc_image.html")
+	
+		# replace section by modified section
+		html = html[:start] + section + html[end:]
+		start = html.rfind(startstring)
+		end = html.rfind(endstring)+len(endstring)		
 
 	return substitute(html,file)
 
@@ -199,10 +215,12 @@ html.append(wikidocConfig["FOOT"])
 
 
 tempfiles = dict()
+keepfiles = dict()
+
 
 # Write html into temp file
-tempfiles["main"] = "wikidoc.html"
-with open(tempfiles["main"], "w") as html_file:
+keepfiles["main"] = "wikidoc.html"
+with open(keepfiles["main"], "w") as html_file:
     html_file.write("\n".join(html))
 
 # Write cover into temp file - if present
@@ -225,7 +243,7 @@ if (tempfiles["cover"]):
 	cmd = cmd + "cover " + tempfiles["cover"] + " "
 if (tempfiles["toc"]):
 	cmd = cmd + "toc --xsl-style-sheet " + tempfiles["toc"] + " "
-cmd = cmd +tempfiles["main"] + " " + pathWiki + wikidocConfig["filename"]
+cmd = cmd +keepfiles["main"] + " " + pathWiki + wikidocConfig["filename"]
 
 
 # Convert HTML to PDF
