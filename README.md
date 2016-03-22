@@ -20,7 +20,7 @@ The following example `home.md` contains all possible wikidoc html comments:
 
 ```
 <!-- WIKIDOC CONFIG
---filename jtdc-documentation.pdf
+--filename documentation.pdf
 --page-size A4
 --margin-top 2cm
 --margin-left 2cm
@@ -37,8 +37,8 @@ WIKIDOC CONFIG -->
  <head>
   <STYLE type='text/css'>
 	html { font-family: Verdana, Geneva, sans-serif; font-size: 13px; }
-	.covertitle { padding-top: 40%; text-align: right; font-weight:bold; font-size: 40px; }
-	.generated { font-weight:normal; font-size: 12px; }
+	.covertitle { padding-top: 40%; text-align: right; font-size: 40px; }
+	.generated { font-size: 12px; }
 
 	table { border-collapse: collapse;  margin: 1em auto 1em auto; width: 90%; border: 1px solid #ccc; }
 	tr td:first-child { border-right: 1px solid #ccc; width: 2.5cm !important;  }
@@ -64,7 +64,7 @@ WIKIDOC HTMLFOOT -->
 <!-- the following WIKIDOC comments are optional -->
 
 <!-- WIKIDOC COVER
-<div class='covertitle'>Example Documentation<br><span class='generated'>generated from github wiki: ###_WIKIDOC_GENDATE_###</span></div>
+<div class='covertitle'><b>Example</b> Documentation<br><span class='generated'>generated from github wiki: ###_WIKIDOC_GENDATE_###</span></div>
 WIKIDOC COVER -->
 
 <!-- WIKIDOC TOCXSL
@@ -150,7 +150,7 @@ The WIKIDOC PDFONLY comment can be used in all wiki files, not just the wiki hom
 
 ## Comments usable in wiki home ##
 
-* WIKIDOC CONFIG: This required wikidoc comments in `home.md` contains a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
+* WIKIDOC CONFIG: This required wikidoc comment contains a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
 
 * WIKIDOC HTMLHEAD and WIKIDOC HTMLFOOT: The wiki markdown files are converted to html with pandoc, joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two required  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
 
