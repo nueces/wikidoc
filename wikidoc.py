@@ -49,7 +49,7 @@ def parseFile(path,file):
 	# Try to convert the source via pandoc to html, otherwise simply
 	# open it and treat as pure html
 	try:
-		html = subprocess.check_output("pandoc -r markdown_github " + path + file, shell=True)
+		html = subprocess.check_output("pandoc --ascii -r markdown_github " + path + file, shell=True)
 	except subprocess.CalledProcessError:
 		print ("Could not convert " + file + " with pandoc from github markdown to html, trying to open it as plain html.")
 		with open (path + file, "r") as myfile:
@@ -89,12 +89,6 @@ def parseFile(path,file):
 				subprocess.call(cmd, shell=True)
 			except OSError:
 				print "Something went wrong converting PDFONLY section to PNG."
-
-			cmd ="convert -trim " + pathWiki + "generated-images/" + name + ".PNG " + pathWiki + "generated-images/" + name + ".PNG"
-			try:
-				subprocess.call(cmd, shell=True)
-			except OSError:
-				print "Something went wrong triming PDF: convert/imagemagic not installed?"
 
 			# Delete temp file
 			os.unlink("wikidoc_image.html")

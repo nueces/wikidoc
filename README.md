@@ -30,7 +30,6 @@ The following example `home.md` contains all possible wikidoc html comments:
 --footer-font-size 6
 --footer-spacing 10
 --footer-right [page]
---print-media-type 
 WIKIDOC CONFIG -->
 
 <!-- WIKIDOC HTMLHEAD
@@ -46,13 +45,6 @@ WIKIDOC CONFIG -->
 	table tr:first-child { background-color: #ddd; }
 	table td { font-family: Verdana,Geneva,sans-serif; font-size: 8pt; vertical-align: top; padding: 5px; }
 
-	/* 	As defined by --print-media-type, the PDF will use media print.
-		The PNG however will use media screen. Use that to apply different
-		styles to PNG and PDF */
-	@media screen {
-		table {  margin-left: 0; margin-right: 0; }
-	}
-	
 	h1 { page-break-before: always; font-size: 26.6px; }
 	h2 { margin-top: 3ex; font-size: 20px; }
 	h3 { margin-top: 3ex; 13.3px}
@@ -158,7 +150,7 @@ The WIKIDOC PDFONLY comment can be used in all wiki files, not just the wiki hom
 
 ## Comments usable in wiki home ##
 
-* WIKIDOC CONFIG: One of the required wikidoc comments in `home.md` is WIKIDOC CONFIG, containing a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
+* WIKIDOC CONFIG: This required wikidoc comments in `home.md` contains a list of parameter definitions. All except "filename" will be directly send as parameters to wkhtmltox (see [documentation](http://wkhtmltopdf.org/usage/wkhtmltopdf.txt) of wkhtmltox for a list of possible options). The provided parameters are not verified by wikidoc. If the filename is missing, the default "wikidoc.pdf" will be used.
 
 * WIKIDOC HTMLHEAD and WIKIDOC HTMLFOOT: The wiki markdown files are converted to html with pandoc, joined in the same order as listed on the github wiki and are put between the HTMLHEAD and HTMLFOOT segements provided by these two required  WIKIDOC comments. The HTMLHEAD may also contain a CSS STYLE section to style the PDF.
 
