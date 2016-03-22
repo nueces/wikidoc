@@ -98,12 +98,14 @@ WIKIDOC COVER -->
           ul {padding-left: 0em; }
           ul ul {padding-left: 1em;}
           a {text-decoration:none; color: black;}
-          ul li:last-child { margin-bottom:1em; }
+          ul.toplevel li { margin-bottom: 1em;  }
+          ul.sublevels li { margin-bottom: 0em;  }
+          ul li:last-child { margin-bottom: 1em; }
         </style>
       </head>
       <body>
         <h1>Contents</h1>
-        <ul><xsl:apply-templates select="outline:item/outline:item"/></ul>
+        <ul class="toplevel"><xsl:apply-templates select="outline:item/outline:item"/></ul>
       </body>
     </html>
   </xsl:template>
@@ -123,7 +125,7 @@ WIKIDOC COVER -->
           <span> <xsl:value-of select="@page" /> </span>
         </div>
       </xsl:if>
-      <ul>
+      <ul class="sublevels">
         <xsl:comment>added to prevent self-closing tags in QtXmlPatterns</xsl:comment>
         <xsl:apply-templates select="outline:item"/>
       </ul>
