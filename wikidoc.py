@@ -20,7 +20,7 @@
 #                                                                            #
 ##############################################################################
 
-import sys, string, os, time, subprocess
+import sys, string, os, time, subprocess, re, os.path
 
 def getFilesInDirectory(dir, FailOnError = True):
 	if os.path.exists(dir):
@@ -49,7 +49,7 @@ def parseFile(path,file):
 	# Try to convert the source via pandoc to html, otherwise simply
 	# open it and treat as pure html
 	try:
-		html = subprocess.check_output("pandoc --ascii -r markdown_github " + path + file, shell=True)
+		html = subprocess.check_output("pandoc --ascii -r gfm " + path + file, shell=True)
 	except subprocess.CalledProcessError:
 		print ("Could not convert " + file + " with pandoc from github markdown to html, trying to open it as plain html.")
 		with open (path + file, "r") as myfile:
@@ -193,14 +193,28 @@ html.append(wikidocConfig["HEAD"])
 # Append Home.md
 html.append(parseFile(pathWiki, "Home.md"))
 
+if os.path.exists('_Sidebar.md'):
+    # Read entries in sidebar file to determine the ordering of chapters for the compiled 
+    # pdf-document
+    with open('_Sidebar.md', 'r') as myfile:
+        sidebarContent=myfile.read().replace('\n', '')
 
-# get all markdown files
-files = sorted(getFilesInDirectory(pathWiki), key=lambda s: s.lower())
+    sidebarEntries = re.findall("\((.*?)\)", sidebarContent)
 
+    # make a list of the markdown-files referenced from the sidebar
+    files = []
+    for entry in sidebarEntries:
+        if entry.endswith(".md"):
+	        files.append(entry)
+        else:
+            files.append(entry + ".md")
+# Use ordering after filename only if Sidebar-file does not exist
+else:
+    files = sorted(getFilesInDirectory(pathWiki), key=lambda s: s.lower())
 
-# Append all other files, except Home.md
+# Append all other files to the document except Home.md
 for file in files:
-	if file.endswith(".md") and not file == "Home.md":
+	if file.endswith(".md") and not file == "Home.md" and not file == "_Sidebar.md":
 		html.append(parseFile(pathWiki, file))
 
 
