@@ -58,21 +58,38 @@ def substitute(section, filename):
     section = section.replace("###_WIKIDOC_TITLE_###", getTitleFromFilename(filename))
     return section
 
+re_sub1 = re.compile('([()])')
+re_sub2 = re.compile('([/ ])')
+def linksrc(text):
+    # replace (,),/ and spaces for -
+    src = re_sub2.sub("-", re_sub1.sub("", text)).lower()
+    return "{}.html".format(src.replace('.md', ''))
+
+def linkrepl(matchobj):
+    text = matchobj.group(0)[2:-2] # strip [[ and ]]
+    return '<a href="{}">{}</a>'.format(linksrc(text), text)
 
 def parseFile(path, file):
-    html = ""
+    html = None
 
     # Try to convert the source via pandoc to html, otherwise simply
     # open it and treat as pure html
     try:
-        html = subprocess.check_output("pandoc --ascii -r gfm " + path + file, shell=True)
+        cmd = "pandoc --ascii -r gfm '{}'".format(os.path.join(working_dir, path, file))
+        html = subprocess.check_output(cmd, shell=True)
+        output = os.path.join(working_dir, pathHtml, linksrc(file))
+        with open(output, 'w') as fdout:
+            # replace links
+            htmldoc = re.sub("(\[\[[0-9a-zA-Z /\(\)]+\]\])", linkrepl, html)
+            fdout.write(htmldoc)
+
     except subprocess.CalledProcessError:
         print (
         "Could not convert " + file + " with pandoc from github markdown to html, trying to open it as plain html.")
         with open(path + file, "r") as myfile:
             html = myfile.read()
 
-    if (not html):
+    if html is None:
         print ("Could not read " + file + ".")
         return ""
 
@@ -168,14 +185,16 @@ def readGlobalWikidocComments(file):
 
 
 # Get path-to-wkhtmltox and path to wiki
-if not len(sys.argv) == 2:
-    print "usage:\n\t" + sys.argv[0] + " <path-to-wiki-folder>\n\n"
+if not len(sys.argv) == 3:
+    print "usage:\n\t" + sys.argv[0] + " <path-to-wiki-folder> <html-output-dir>\n\n"
     exit()
 
 # because windows does not handle POSIX paths for calls to exe-files, we replace / with \
 # this way passing a relative path in POSIX-style is still possible
 
 pathWiki = sys.argv[1]
+pathHtml = sys.argv[2]
+working_dir = os.getcwd()
 
 if not pathWiki.endswith("/"):
     pathWiki = pathWiki + "/"
@@ -206,7 +225,6 @@ if (generateImages and not os.path.isdir(pathWiki + "generated-images")):
     print "folder not found in wiki repository.\n"
     generateImages = False
 
-11
 # Home.md must be present and it must contain special comments with additional
 # informations
 (wikidocConfig, wkhtmltopdfConfig) = readGlobalWikidocComments(pathWiki + "Home.md")
@@ -278,7 +296,7 @@ if (tempfiles["cover"]):
     cmd = cmd + "cover " + tempfiles["cover"] + " "
 if (tempfiles["toc"]):
     cmd = cmd + "toc --xsl-style-sheet " + tempfiles["toc"] + " "
-cmd = cmd + keepfiles["main"] + " " + pathWiki + wikidocConfig["filename"]
+cmd = cmd + keepfiles["main"] + " " + wikidocConfig["filename"]
 
 # Convert HTML to PDF
 try:
