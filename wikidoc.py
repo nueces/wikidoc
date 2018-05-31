@@ -28,6 +28,16 @@ import re
 import os.path
 
 
+def which(command):
+    """ return the pathname for the especified command wich could be executed
+        in the current environment.
+    """
+    for path in os.environ.get('PATH').split(os.pathsep):
+        pathname = os.path.join(path, command)
+        if os.access(pathname, os.X_OK):
+            return pathname
+
+
 def getFilesInDirectory(dir, failOnError=True):
     if os.path.exists(dir):
         return next(os.walk(dir))[2]
@@ -158,27 +168,32 @@ def readGlobalWikidocComments(file):
 
 
 # Get path-to-wkhtmltox and path to wiki
-if not len(sys.argv) == 3:
-    print "usage:\n\t" + sys.argv[0] + " <path-to-wkhtmltopdf> <path-to-wiki-folder>\n\n"
+if not len(sys.argv) == 2:
+    print "usage:\n\t" + sys.argv[0] + " <path-to-wiki-folder>\n\n"
     exit()
 
 # because windows does not handle POSIX paths for calls to exe-files, we replace / with \
 # this way passing a relative path in POSIX-style is still possible
-pathWkhtmltopdf = sys.argv[1].replace("/", os.sep)
-pathWiki = sys.argv[2]
+
+pathWiki = sys.argv[1]
 
 if not pathWiki.endswith("/"):
     pathWiki = pathWiki + "/"
 
 generateImages = True
 
-# Check if wkhtmltoimage is present
-pathWkhtmltoimage = os.path.dirname(pathWkhtmltopdf) + os.sep + "wkhtmltoimage"
+# Check if pathWkhtmltopdf and wkhtmltoimage are present
+pathWkhtmltopdf = which('wkhtmltopdf')
+pathWkhtmltoimage = which('wkhtmltoimage')
 
 
 # In order to handle windows-executables also check for exe files
-if (not os.path.isfile(pathWkhtmltoimage)):
-    pathWkhtmltoimage = pathWkhtmltoimage + ".exe"
+# FIXME:
+#if (not os.path.isfile(pathWkhtmltoimage)):
+#    pathWkhtmltoimage = pathWkhtmltoimage + ".exe"
+if (not os.path.isfile(pathWkhtmltopdf)):
+    print str(sys.argv[0]) + "ERROR: wkhtmltopdf not found in $PATH"
+    sys.exit(1)
 
 if (not os.path.isfile(pathWkhtmltoimage)):
     print "PDFONLY segements will not be saved as images, because 'wkhtmltoimage'"
@@ -205,7 +220,7 @@ html.append(parseFile(pathWiki, "Home.md"))
 
 if os.path.exists(pathWiki + '_Sidebar.md'):
     print 'Using _Sidebar.md for ordering of md-files'
-    # Read entries in sidebar file to determine the ordering of chapters for the compiled 
+    # Read entries in sidebar file to determine the ordering of chapters for the compiled
     # pdf-document
     with open(pathWiki + '_Sidebar.md', 'r') as myfile:
         sidebarContent = myfile.read().replace('\n', '')
@@ -216,10 +231,10 @@ if os.path.exists(pathWiki + '_Sidebar.md'):
     files = []
     for entry in sidebarEntries:
     	filename = entry
-        
+
         if not entry.lower().endswith(".md"):
             filename = filename + ".md"
-            
+
         # Only append to the list of files if a corresponding file exists
         if os.path.exists(pathWiki + filename):
             files.append(filename)
